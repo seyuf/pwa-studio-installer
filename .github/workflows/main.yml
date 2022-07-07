@@ -1,0 +1,40 @@
+name: m2-actions-test
+on: [push]
+
+jobs:
+  magento2-build:
+    runs-on: ubuntu-latest
+    name: 'm2 tests & build'
+    services:
+      mysql:
+        image: docker://mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: magento
+          MYSQL_DATABASE: magento
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      elasticsearch:
+        image: docker://elasticsearch:7.1.0
+        ports:
+          - 9200:9200
+        options: -e="discovery.type=single-node" --health-cmd="curl http://localhost:9200/_cluster/health" --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 'install fresh pwa-studio project'
+        uses: MAD-I-T/magento-actions@master
+        with:
+          process: 'pwa-studio-install'
+          #no_push: 1
+
+      - name: 'install fresh magento repo'
+        if: ${{false}}
+        uses: MAD-I-T/magento-actions@master
+        env:
+          COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
+        with:
+          process: 'create-project'
+          magento_version: 2.4.4
+          #no_push: 1
+
