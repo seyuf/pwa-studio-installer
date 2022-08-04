@@ -26,14 +26,68 @@ jobs:
         with:
           process: 'pwa-studio-install'
           #no_push: 1
-
-      - name: 'install fresh magento repo'
-        if: ${{false}}
+          
+          
+      - name: 'launch magento2 build'
+        if: always()
+        #if: ${{false}}
+        id: build
         uses: MAD-I-T/magento-actions@master
         env:
           COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
         with:
-          process: 'create-project'
-          magento_version: 2.4.4
+          process: 'build'
+          #composer_version: 2
+          elasticsearch: 1
+          #override_settings: 1
+      
+      #### section to be activated, for zero downtime deployment on preprod and/or prod remove ${{false}}
+      - name: 'launch magento2 zero downtime deploy with no permission check'
+        if: ${{false}} #  
+        #if: steps.build.outcome == 'success'
+        uses: MAD-I-T/magento-actions@master
+        env:
+          COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
+          BUCKET_COMMIT: bucket-commit-${{github.sha}}.tar.gz
+          MYSQL_ROOT_PASSWORD: magento
+          MYSQL_DATABASE: magento
+          HOST_DEPLOY_PATH: ${{secrets.STAGE_HOST_DEPLOY_PATH}}
+          HOST_DEPLOY_PATH_BUCKET: ${{secrets.STAGE_HOST_DEPLOY_PATH}}/bucket
+          SSH_PRIVATE_KEY: ${{secrets.STAGE_SSH_PRIVATE_KEY}}
+          SSH_CONFIG: ${{secrets.STAGE_SSH_CONFIG}}
+          WRITE_USE_SUDO: false
+        with:
+          deployer: 'no-permission-check'
+          process: 'deploy-staging'
+
+        
+      - name: 'unlock deployer if fails'
+        if: ${{false}} 
+        #if: failure() || cancelled()
+        uses: MAD-I-T/magento-actions@master
+        env:
+          COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
+          BUCKET_COMMIT: bucket-commit-${{github.sha}}.tar.gz
+          MYSQL_ROOT_PASSWORD: magento
+          MYSQL_DATABASE: magento
+          HOST_DEPLOY_PATH: ${{secrets.STAGE_HOST_DEPLOY_PATH}}
+          HOST_DEPLOY_PATH_BUCKET: ${{secrets.STAGE_HOST_DEPLOY_PATH}}/bucket
+          SSH_PRIVATE_KEY: ${{secrets.STAGE_SSH_PRIVATE_KEY}}
+          SSH_CONFIG: ${{secrets.STAGE_SSH_CONFIG}}
+          WRITE_USE_SUDO: false
+        with:
+          process: 'cleanup-staging'
+  
+
+          
+
+      #- name: 'install fresh magento repo'
+      #  if: ${{false}}
+      #  uses: MAD-I-T/magento-actions@master
+      #  env:
+      #    COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
+      #  with:
+      #    process: 'create-project'
+      #    magento_version: 2.4.4
           #no_push: 1
 
