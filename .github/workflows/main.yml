@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: 'install fresh pwa-studio project'
-        if: ${{false}}
+        #if: ${{false}}
         uses: MAD-I-T/magento-actions@v3.21
         with:
           process: 'pwa-studio-install'
