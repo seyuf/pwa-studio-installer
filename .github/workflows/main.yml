@@ -42,7 +42,6 @@ jobs:
           COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
         with:
           process: 'build'
-
       
       #### section to be activated, for zero downtime deployment on preprod and/or prod remove ${{false}}
       - name: 'launch magento2 zero downtime deploy with no permission check'
