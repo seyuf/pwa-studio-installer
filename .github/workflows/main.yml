@@ -28,17 +28,17 @@ jobs:
       - uses: actions/checkout@v3
       - name: 'install fresh pwa-studio project'
         if: ${{false}}
-        uses: MAD-I-T/magento-actions@v3.20
+        uses: MAD-I-T/magento-actions@v3.21
         with:
           process: 'pwa-studio-install'
-          #no_push: 1
+          no_push: 1
           
           
       - name: 'launch magento2 build'
         if: always()
         #if: ${{false}}
         id: build
-        uses: MAD-I-T/magento-actions@v3.20
+        uses: MAD-I-T/magento-actions@v3.21
         env:
           COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
         with:
