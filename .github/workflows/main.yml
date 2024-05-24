@@ -27,28 +27,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 'install fresh pwa-studio project'
+        if: (!cancelled())
         #if: ${{false}}
-        uses: MAD-I-T/magento-actions@v3.27
+        uses: MAD-I-T/magento-actions@v3.29
         with:
           process: 'pwa-studio-install'
           #no_push: 1
           
           
       - name: 'launch magento2 build'
-        if: always()
+        if: (!cancelled())
         #if: ${{false}}
         id: build
-        uses: MAD-I-T/magento-actions@v3.27
+        uses: MAD-I-T/magento-actions@v3.29
         env:
           COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
         with:
           process: 'build'
+          pwa_studio_only: 1
+          
       
       #### section to be activated, for zero downtime deployment on preprod and/or prod remove ${{false}}
       - name: 'launch magento2 zero downtime deploy with no permission check'
         if: ${{false}} #  
         #if: steps.build.outcome == 'success'
-        uses: MAD-I-T/magento-actions@master
+        uses: MAD-I-T/magento-actions@v3.29
         env:
           COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
           BUCKET_COMMIT: bucket-commit-${{github.sha}}.tar.gz
@@ -67,7 +70,7 @@ jobs:
       - name: 'unlock deployer if fails'
         if: ${{false}} 
         #if: failure() || cancelled()
-        uses: MAD-I-T/magento-actions@master
+        uses: MAD-I-T/magento-actions@v3.29
         env:
           COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
           BUCKET_COMMIT: bucket-commit-${{github.sha}}.tar.gz
